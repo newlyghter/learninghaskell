@@ -24,4 +24,4 @@ power n k = n * power n (k-1)
 
 ilog3 :: Integer -> Integer
 ilog3 0 = 0
-ilog3 n = show "IDK BRO"
+ilog3 n = let x = n `div` 3 in 1 + ilog3 x
