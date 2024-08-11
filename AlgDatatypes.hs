@@ -70,5 +70,21 @@ insert :: Int -> Tree Int -> Tree Int
 insert x Empty = Node x Empty Empty
 insert x (Node y l r)
   | x < y = Node y (insert x l) r
-  | x > y Node y l (insert x r)
+  | x > y = Node y l (insert x r)
   | otherwise = Node y l r
+
+data Person = MkPerson { name :: String, age :: Int, town :: String, state :: String, profession :: String}
+  deriving Show
+
+people :: [Person]
+people = [ MkPerson "Jane Doe" 21 "Houston" "Texas" "Engineer"
+         , MkPerson "Maija Meikäläinen" 35 "Rovaniemi" "Finland" "Engineer"
+         , MkPerson "Mauno Mutikainen" 27 "Turku" "Finland" "Mathematician"
+         ]
+
+query :: [Person] -> [Person]
+query []     = []
+query (x:xs)
+  | state x == "Finland" && profession x == "Engineer" =
+      x : query xs
+  | otherwise = query xs
