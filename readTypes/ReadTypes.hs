@@ -6,7 +6,7 @@ import System.Directory (listDirectory, doesDirectoryExist)
 
 -- a line is a type sig if it contains :: but not =
 isTypeSignature :: String -> Bool
-isTypeSignature s = not (isInfixOf "=" s) && isInfixOf "::" s
+isTypeSignature s = not (isInfixOf "=" s) && isInfixOf "::" s && not (isInfixOf "--" s)
 
 -- return list of types for a .hs file
 readTypesFile :: FilePath -> IO [String]
