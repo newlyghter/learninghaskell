@@ -1,6 +1,7 @@
 module RealWorld where
 
 import Control.Monad
+import Data.IORef
 
 questionnaire :: IO ()
 questionnaire = do
@@ -122,3 +123,35 @@ readAndSum' :: (Read b, Num b) => Int -> IO b
 readAndSum' n = do
   numbers <- replicateM n readLn
   return (sum numbers)
+
+choice :: IO x -> IO x -> IO x
+choice a b = do 
+  putStr "a or b? "
+  x <- getLine
+  case x of
+    "a" -> a
+    "b" -> b
+    _   -> do
+      putStrLn "Wrong!"
+      choice a b
+
+{-
+mapM_ :: (a -> IO b) -> [a] -> IO ()
+mapM_ op     [] = return ()
+mapM_ op (x:xs) = do
+  op x
+  mapM_ op xs
+-}
+
+{-
+newIORef :: a -> IO (IORef a)                -- create a new IORef containing a value
+readIORef :: IORef a -> IO a                 -- produce value contained in IORef
+writeIORef :: IORef a -> a -> IO ()          -- set value in IORef
+modifyIORef :: IORef a -> (a -> a) -> IO ()  -- modify value contained in IORef with a pure function
+-}
+
+sumList :: [Int] -> IO Int
+sumList xs = do
+  r <- newIORef 0
+  forM_ xs (\x -> modifyIORef r (x+))
+  readIORef r
