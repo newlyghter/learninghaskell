@@ -1,6 +1,8 @@
 module Monads where
 
 import Data.List
+import qualified Data.Map as Map
+import Data.IntMap (findWithDefault)
 
 (?>) :: Maybe a -> (a -> Maybe b) -> Maybe b
 Nothing ?> _ = Nothing
@@ -117,3 +119,71 @@ login user password =
     #>
     \valid -> if valid then checkPassword user password
                        else nomsg False
+
+data Bank = Bank (Map.Map String Int)
+  deriving Show
+
+-- apply a function to one value in a map
+-- Map.adjust :: Ord k => (a -> a) -> k -> Map.Map k a -> Map.Map k a
+
+deposit :: String -> Int -> Bank -> Bank
+deposit accountName amount (Bank accounts) =
+  Bank (Map.adjust (\x -> x+amount) accountName accounts)
+
+-- fetch the value corresponding to a key from a map,
+-- or a default value in case the key does not exist
+-- Map.findWithDefault :: Ord k => a -> k -> Map.Map k a -> a
+
+withdraw :: String -> Int -> Bank -> (Int, Bank)
+withdraw accountName amount (Bank accounts) =
+  let -- balance is 0 for nonexistent accounts
+    balance = Map.findWithDefault 0 accountName accounts
+    -- can't withdraw over balance
+    withdrawal = min amount balance
+    newAccounts = Map.adjust (\x -> x-withdrawal) accountName accounts
+  in (withdrawal, Bank newAccounts)
+
+share :: String -> String -> String -> Bank -> Bank
+share from to1 to2 bank =
+  let (amount,bank1) = withdraw from 100 bank
+      half = div amount 2
+      rest = amount - half
+      bank2 = deposit to1 half bank1
+      bank3 = deposit to2 rest bank2
+  in bank3
+
+-- finally monads
+-- class Monad m where
+--   (>>=) :: m a -> (a -> m b) -> m b
+
+{-
+(>>=) :: Maybe a -> (a -> Maybe b) -> Maybe b
+Nothing >>= _ = Nothing
+Just x >>= f = f x
+-}
+
+{-
+instance  Monad Maybe  where
+    (Just x) >>= k      = k x
+    Nothing  >>= _      = Nothing
+
+    (Just _) >>  k      = k
+    Nothing  >>  _      = Nothing
+
+    return x            = Just x
+-}
+
+increaseM :: Eq a => a -> Int -> [(a,Int)] -> Maybe [(a,Int)]
+increaseM key val assocs =
+    lookup key assocs >>=
+    check >>=
+    buildResult
+  where check x
+           | val < x   = Nothing
+           | otherwise = return x
+        buildResult x = return ((key,val) : delete (key,x) assocs)
+
+safeNthM :: Int -> [a] -> Maybe a
+safeNthM 0 xs = safeHead xs
+safeNthM n xs = do t <- safeTail xs
+                   safeNthM (n-1) t
