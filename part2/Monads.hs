@@ -55,6 +55,7 @@ safeNth :: Int -> [a] -> Maybe a
 safeNth 0 xs = safeHead xs
 safeNth n xs = safeTail xs ?> safeNth (n-1)
 
+
 -- Logger definition
 data Logger a = Logger [String] a
   deriving Show
@@ -187,3 +188,5 @@ safeNthM :: Int -> [a] -> Maybe a
 safeNthM 0 xs = safeHead xs
 safeNthM n xs = do t <- safeTail xs
                    safeNthM (n-1) t
+
+
