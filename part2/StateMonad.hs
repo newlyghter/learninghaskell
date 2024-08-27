@@ -1,4 +1,5 @@
 import Control.Monad.Trans.State
+import Control.Monad
 
 -- adds i to the value of the counter
 add :: Int -> State Int ()
@@ -17,6 +18,10 @@ findLargest []     = return ()
 findLargest (x:xs) = do
   modify (\y -> max x y)
   findLargest xs
+
+findLargest' :: Ord a => [a] -> State a ()
+findLargest' xs = mapM_ update xs
+  where update x = modify (\y -> max x y)
 
 remember :: a -> State [a] ()
 remember x = modify (x:)
